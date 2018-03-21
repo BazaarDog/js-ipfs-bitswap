@@ -10,8 +10,8 @@ const Message = require('./types/message')
 const CONSTANTS = require('./constants')
 const logger = require('./utils').logger
 
-const BITSWAP100 = '/ipfs/bitswap/1.0.0'
-const BITSWAP110 = '/ipfs/bitswap/1.1.0'
+const BITSWAP100 = '/openbazaar/bitswap/1.0.0'
+const BITSWAP110 = '/openbazaar/bitswap/1.1.0'
 
 class Network {
   constructor (libp2p, bitswap, options, stats) {
