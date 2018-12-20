@@ -24,7 +24,7 @@ function createThing (dht, callback) {
     (cb) => createTempRepo(cb),
     (repo, cb) => {
       createLibp2pNode({
-        DHT: dht ? repo.datastore : undefined
+        DHT: dht
       }, (err, node) => cb(err, repo, node))
     },
     (repo, libp2pNode, cb) => {
@@ -134,11 +134,10 @@ describe('bitswap with DHT', function () {
     ], done)
   })
 
-  it('put a block in 2, get it in 0', (done) => {
+  it('put a block in 2, get it in 0', function (done) {
     waterfall([
       (cb) => makeBlock(cb),
       (block, cb) => nodes[2].bitswap.put(block, () => cb(null, block)),
-      (block, cb) => setTimeout(() => cb(null, block), 400),
       (block, cb) => nodes[0].bitswap.get(block.cid, (err, blockRetrieved) => {
         expect(err).to.not.exist()
         expect(block.data).to.eql(blockRetrieved.data)

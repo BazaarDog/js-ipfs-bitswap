@@ -1,3 +1,56 @@
+<a name="0.21.1"></a>
+## [0.21.1](https://github.com/ipfs/js-ipfs-bitswap/compare/v0.21.0...v0.21.1) (2018-12-06)
+
+
+### Features
+
+* send max providers to findProviders request ([31493dc](https://github.com/ipfs/js-ipfs-bitswap/commit/31493dc))
+
+
+
+<a name="0.21.0"></a>
+# [0.21.0](https://github.com/ipfs/js-ipfs-bitswap/compare/v0.20.3...v0.21.0) (2018-10-26)
+
+
+### Features
+
+* change bitswapLedgerForPeer output format ([c68a0c8](https://github.com/ipfs/js-ipfs-bitswap/commit/c68a0c8))
+
+
+
+<a name="0.20.3"></a>
+## [0.20.3](https://github.com/ipfs/js-ipfs-bitswap/compare/v0.20.2...v0.20.3) (2018-07-03)
+
+
+
+<a name="0.20.2"></a>
+## [0.20.2](https://github.com/ipfs/js-ipfs-bitswap/compare/v0.20.0...v0.20.2) (2018-06-18)
+
+
+### Bug Fixes
+
+* ipfs/js-ipfs[#1292](https://github.com/ipfs/js-ipfs-bitswap/issues/1292) - Catch invalid CIDs and return the error via callback ([#170](https://github.com/ipfs/js-ipfs-bitswap/issues/170)) ([51f5ce0](https://github.com/ipfs/js-ipfs-bitswap/commit/51f5ce0))
+* reset batch size counter ([739ad0d](https://github.com/ipfs/js-ipfs-bitswap/commit/739ad0d))
+
+
+### Features
+
+* add bitswap.ledgerForPeer ([871d0d2](https://github.com/ipfs/js-ipfs-bitswap/commit/871d0d2))
+* add ledger.debtRatio() ([e602810](https://github.com/ipfs/js-ipfs-bitswap/commit/e602810))
+
+
+
+<a name="0.20.1"></a>
+## [0.20.1](https://github.com/ipfs/js-ipfs-bitswap/compare/v0.20.0...v0.20.1) (2018-05-28)
+
+
+### Bug Fixes
+
+* ipfs/js-ipfs[#1292](https://github.com/ipfs/js-ipfs-bitswap/issues/1292) - Catch invalid CIDs and return the error via callback ([#170](https://github.com/ipfs/js-ipfs-bitswap/issues/170)) ([51f5ce0](https://github.com/ipfs/js-ipfs-bitswap/commit/51f5ce0))
+* reset batch size counter ([739ad0d](https://github.com/ipfs/js-ipfs-bitswap/commit/739ad0d))
+
+
+
 <a name="0.20.0"></a>
 # [0.20.0](https://github.com/ipfs/js-ipfs-bitswap/compare/v0.19.0...v0.20.0) (2018-04-10)
 

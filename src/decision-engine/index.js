@@ -59,6 +59,7 @@ class DecisionEngine {
       if (size >= MAX_MESSAGE_SIZE ||
           // need to ensure the last remaining items get sent
           outstanding === 0) {
+        size = 0
         const nextBatch = batch.slice()
         batch = []
         this._sendSafeBlocks(peer, nextBatch, (err) => {
@@ -132,6 +133,22 @@ class DecisionEngine {
     }
 
     return this.ledgerMap.get(peerIdStr).wantlist.sortedEntries()
+  }
+
+  ledgerForPeer (peerId) {
+    const peerIdStr = peerId.toB58String()
+
+    const ledger = this.ledgerMap.get(peerIdStr)
+    if (!ledger) {
+      return null
+    }
+    return {
+      peer: ledger.partner.toPrint(),
+      value: ledger.debtRatio(),
+      sent: ledger.accounting.bytesSent,
+      recv: ledger.accounting.bytesRecv,
+      exchanged: ledger.exchangeCount
+    }
   }
 
   peers () {

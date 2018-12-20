@@ -35,7 +35,7 @@ describe('bitswap with mocks', function () {
     parallel([
       (cb) => createTempRepo(cb),
       (cb) => map(_.range(15), (i, cb) => makeBlock(cb), cb),
-      (cb) => map(_.range(2), (i, cb) => PeerId.create({bits: 1024}, cb), cb)
+      (cb) => map(_.range(2), (i, cb) => PeerId.create({ bits: 512 }, cb), cb)
     ], (err, results) => {
       if (err) {
         return done(err)
@@ -76,6 +76,13 @@ describe('bitswap with mocks', function () {
 
             expect(blocks[0].data).to.eql(b1.data)
             expect(blocks[1].data).to.eql(b2.data)
+
+            const ledger = bs.ledgerForPeer(other)
+            expect(ledger.peer).to.equal(other.toPrint())
+            expect(ledger.value).to.equal(0)
+            expect(ledger.sent).to.equal(0)
+            expect(ledger.recv).to.equal(96)
+            expect(ledger.exchanged).to.equal(2)
             done()
           })
         })
@@ -119,7 +126,7 @@ describe('bitswap with mocks', function () {
         expect(err).to.not.exist()
 
         parallel([
-          (cb) => map(_.range(5), (i, cb) => PeerId.create(cb), cb),
+          (cb) => map(_.range(5), (i, cb) => PeerId.create({ bits: 512 }, cb), cb),
           (cb) => map(_.range(10), (i, cb) => makeBlock(cb), cb)
         ], (err, results) => {
           expect(err).to.not.exist()
@@ -378,6 +385,18 @@ describe('bitswap with mocks', function () {
         bs.get(b.cid, check)
 
         setTimeout(() => bs.unwant(b.cid), 10)
+      })
+    })
+  })
+
+  describe('ledgerForPeer', () => {
+    it('returns null for unknown peer', (done) => {
+      const bs = new Bitswap(mockLibp2pNode(), repo.blocks)
+      PeerId.create({ bits: 512 }, (err, id) => {
+        expect(err).to.not.exist()
+        const ledger = bs.ledgerForPeer(id)
+        expect(ledger).to.equal(null)
+        done()
       })
     })
   })
