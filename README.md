@@ -14,6 +14,10 @@
 
 > JavaScript implementation of the Bitswap 'data exchange' protocol used by IPFS
 
+## Lead Maintainer
+
+[Volker Mische](https://github.com/vmx)
+
 ## Table of Contents
 
 - [Install](#install)
@@ -89,7 +93,7 @@ const snapshot = stats.snapshot
 console.log('stats: %j', snapshot)
 ```
 
-the snapshot will contain the following keys, with the values being [Big.js](https://github.com/MikeMcl/big.js#readme) instances:
+the snapshot will contain the following keys, with the values being [bignumber.js](https://github.com/MikeMcl/bignumber.js#readme) instances:
 
 ```js
 // stats: {

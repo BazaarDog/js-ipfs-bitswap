@@ -25,9 +25,9 @@ describe('WantManager', () => {
     let blocks
 
     parallel([
-      (cb) => PeerId.create(cb),
-      (cb) => PeerId.create(cb),
-      (cb) => PeerId.create(cb),
+      (cb) => PeerId.create({ bits: 512 }, cb),
+      (cb) => PeerId.create({ bits: 512 }, cb),
+      (cb) => PeerId.create({ bits: 512 }, cb),
       (cb) => {
         map(_.range(3), (i, cb) => makeBlock(cb), (err, res) => {
           expect(err).to.not.exist()
@@ -63,14 +63,16 @@ describe('WantManager', () => {
         expect(calls.connects).to.have.length(6)
         expect(calls.messages).to.have.length(6)
 
-        calls.messages.forEach((m, i) => {
-          expect(m[0]).to.be.eql(calls.connects[i])
-          if (!m[1].equals(msgs[i])) {
+        for (let ii = 0; ii < calls.messages.length; ii++) {
+          const message = calls.messages[ii]
+          const connect = calls.connects[ii]
+          expect(message[0]).to.be.eql(connect)
+          if (!message[1].equals(msgs[ii])) {
             return done(
-              new Error(`expected ${m[1].toString()} to equal ${msgs[i].toString()}`)
+              new Error(`expected ${message[1].toString()} to equal ${msgs[ii].toString()}`)
             )
           }
-        })
+        }
 
         done()
       })

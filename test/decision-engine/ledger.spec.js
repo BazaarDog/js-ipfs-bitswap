@@ -13,7 +13,7 @@ describe('Ledger', () => {
   let ledger
 
   before((done) => {
-    PeerId.create({bits: 1024}, (err, _peerId) => {
+    PeerId.create({ bits: 512 }, (err, _peerId) => {
       if (err) {
         return done(err)
       }
@@ -28,6 +28,8 @@ describe('Ledger', () => {
   })
 
   it('accounts', () => {
+    expect(ledger.debtRatio()).to.eql(0)
+
     ledger.sentBytes(100)
     ledger.sentBytes(12000)
     ledger.receivedBytes(223432)
@@ -38,5 +40,7 @@ describe('Ledger', () => {
         bytesSent: 100 + 12000,
         bytesRecv: 223432 + 2333
       })
+    expect(ledger.debtRatio())
+      .to.eql((100 + 12000) / (223432 + 2333 + 1))
   })
 })

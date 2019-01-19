@@ -3,20 +3,15 @@
 const each = require('async/each')
 const eachSeries = require('async/eachSeries')
 const waterfall = require('async/waterfall')
-const setImmediate = require('async/setImmediate')
+const nextTick = require('async/nextTick')
 
 const map = require('async/map')
-const debounce = require('lodash.debounce')
-const uniqWith = require('lodash.uniqwith')
-const find = require('lodash.find')
-const values = require('lodash.values')
-const groupBy = require('lodash.groupby')
-const pullAllWith = require('lodash.pullallwith')
+const debounce = require('just-debounce-it')
 
 const Message = require('../types/message')
 const Wantlist = require('../types/wantlist')
 const Ledger = require('./ledger')
-const logger = require('../utils').logger
+const { logger, groupBy, pullAllWith, uniqWith } = require('../utils')
 
 const MAX_MESSAGE_SIZE = 512 * 1024
 
@@ -59,6 +54,7 @@ class DecisionEngine {
       if (size >= MAX_MESSAGE_SIZE ||
           // need to ensure the last remaining items get sent
           outstanding === 0) {
+        size = 0
         const nextBatch = batch.slice()
         batch = []
         this._sendSafeBlocks(peer, nextBatch, (err) => {
@@ -70,7 +66,7 @@ class DecisionEngine {
           cb()
         })
       } else {
-        cb()
+        nextTick(cb)
       }
     }, cb)
   }
@@ -91,18 +87,18 @@ class DecisionEngine {
     this._tasks = []
     const entries = tasks.map((t) => t.entry)
     const cids = entries.map((e) => e.cid)
-    const uniqCids = uniqWith(cids, (a, b) => a.equals(b))
-    const groupedTasks = groupBy(tasks, (task) => task.target.toB58String())
+    const uniqCids = uniqWith((a, b) => a.equals(b), cids)
+    const groupedTasks = groupBy(task => task.target.toB58String(), tasks)
 
     waterfall([
-      (cb) => map(uniqCids, (cid, cb) => {
+      (callback) => map(uniqCids, (cid, cb) => {
         this.blockstore.get(cid, cb)
-      }, cb),
-      (blocks, cb) => each(values(groupedTasks), (tasks, cb) => {
+      }, callback),
+      (blocks, callback) => each(Object.values(groupedTasks), (tasks, cb) => {
         // all tasks have the same target
         const peer = tasks[0].target
         const blockList = cids.map((cid) => {
-          return find(blocks, (b) => b.cid.equals(cid))
+          return blocks.find(b => b.cid.equals(cid))
         })
 
         this._sendBlocks(peer, blockList, (err) => {
@@ -115,7 +111,7 @@ class DecisionEngine {
 
           cb()
         })
-      })
+      }, callback)
     ], (err) => {
       this._tasks = []
 
@@ -132,6 +128,22 @@ class DecisionEngine {
     }
 
     return this.ledgerMap.get(peerIdStr).wantlist.sortedEntries()
+  }
+
+  ledgerForPeer (peerId) {
+    const peerIdStr = peerId.toB58String()
+
+    const ledger = this.ledgerMap.get(peerIdStr)
+    if (!ledger) {
+      return null
+    }
+    return {
+      peer: ledger.partner.toPrint(),
+      value: ledger.debtRatio(),
+      sent: ledger.accounting.bytesSent,
+      recv: ledger.accounting.bytesRecv,
+      exchanged: ledger.exchangeCount
+    }
   }
 
   peers () {
@@ -162,7 +174,7 @@ class DecisionEngine {
     const ledger = this._findOrCreate(peerId)
 
     if (msg.empty) {
-      return cb()
+      return nextTick(cb)
     }
 
     // If the message was a full wantlist clear the current one
@@ -173,7 +185,7 @@ class DecisionEngine {
     this._processBlocks(msg.blocks, ledger)
 
     if (msg.wantlist.size === 0) {
-      return cb()
+      return nextTick(cb)
     }
 
     let cancels = []
@@ -195,14 +207,14 @@ class DecisionEngine {
   _cancelWants (ledger, peerId, entries) {
     const id = peerId.toB58String()
 
-    pullAllWith(this._tasks, entries, (t, e) => {
+    this._tasks = pullAllWith((t, e) => {
       const sameTarget = t.target.toB58String() === id
       const sameCid = t.entry.cid.equals(e.cid)
       return sameTarget && sameCid
-    })
+    }, this._tasks, entries)
   }
 
-  _addWants (ledger, peerId, entries, cb) {
+  _addWants (ledger, peerId, entries, callback) {
     each(entries, (entry, cb) => {
       // If we already have the block, serve it
       this.blockstore.has(entry.cid, (err, exists) => {
@@ -218,7 +230,7 @@ class DecisionEngine {
       })
     }, () => {
       this._outbox()
-      cb()
+      callback()
     })
   }
 
@@ -277,12 +289,12 @@ class DecisionEngine {
 
   start (callback) {
     this._running = true
-    setImmediate(() => callback())
+    nextTick(() => callback())
   }
 
   stop (callback) {
     this._running = false
-    setImmediate(() => callback())
+    nextTick(() => callback())
   }
 }
 
